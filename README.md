@@ -10,12 +10,6 @@ Este projeto é uma interface gráfica simples desenvolvida em Python com a bibl
 
 ---
 
-## 🖼️ Interface
-
-![screenshot](https://via.placeholder.com/500x300?text=Tkinter+Decimal+to+Binary+Converter)
-
----
-
 ## 💻 Como usar
 
 ### 1. Clone o repositório (ou copie o código):
