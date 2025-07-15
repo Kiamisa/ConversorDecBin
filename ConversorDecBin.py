@@ -2,88 +2,74 @@ from customtkinter import *
 
 class App:
     def __init__(self, master):
-        set_appearance_mode("System")  # Pode ser "Dark", "Light" ou "System"
-        set_default_color_theme("blue")  # Ou outros temas: "green", "dark-blue"
+        set_appearance_mode("Dark")
+        set_default_color_theme("blue")
 
-        self.fontePadrao = ("Arial", 12)
+        self.resultFont = ("Consolas", 14, "bold")
 
-        # Frame 1
-        self.primeiroContainer = CTkFrame(master)
-        self.primeiroContainer.pack(pady=20)
-
-        # Frame 2
-        self.segundoContainer = CTkFrame(master)
-        self.segundoContainer.pack(pady=10)
-
-        # Frame 3
-        self.terceiroContainer = CTkFrame(master)
-        self.terceiroContainer.pack(pady=10)
-
-        # Frame 4
-        self.quartoContainer = CTkFrame(master)
-        self.quartoContainer.pack(pady=20)
+        # Container principal
+        self.container = CTkFrame(master, corner_radius=15)
+        self.container.pack(fill="both", expand=True, padx=20, pady=20)
 
         # Título
-        self.titulo = CTkLabel(self.primeiroContainer, text="Digite o valor para ser convertido", font=("Arial", 14, "bold"))
-        self.titulo.pack()
+        self.title = CTkLabel(self.container, text="Conversor Decimal → Binário", font=("Segoe UI", 18, "bold"))
+        self.title.pack(pady=15)
 
-        # Valor
-        self.valorLabel = CTkLabel(self.segundoContainer, text="Valor:", font=self.fontePadrao)
-        self.valorLabel.pack(side=LEFT, padx=(0, 10))
-        self.valor = CTkEntry(self.segundoContainer, width=150, font=self.fontePadrao)
-        self.valor.pack(side=LEFT)
+        # Entrada: Valor
+        self.valor = CTkEntry(self.container, placeholder_text="Digite o número decimal...", font=("Consolas", 12))
+        self.valor.pack(pady=10)
 
-        # Precisão
-        self.precisaoLabel = CTkLabel(self.terceiroContainer, text="Precisão:", font=self.fontePadrao)
-        self.precisaoLabel.pack(side=LEFT, padx=(0, 10))
-        self.precisao = CTkEntry(self.terceiroContainer, width=150, font=self.fontePadrao)
-        self.precisao.pack(side=LEFT)
+        # Entrada: Precisão
+        self.precisao = CTkEntry(self.container, placeholder_text="Precisão (ex: 5)", font=("Consolas", 12))
+        self.precisao.pack(pady=10)
 
-        # Botão Converter
-        self.conversor = CTkButton(self.quartoContainer, text="Converter", width=120, command=self.decPARAbin)
-        self.conversor.pack(pady=10)
+        # Botão de conversão
+        self.botao = CTkButton(self.container, text="Converter", command=self.decPARAbin)
+        self.botao.pack(pady=15)
 
-        # Mensagem Resultado
-        self.mensagem = CTkLabel(self.quartoContainer, text="", font=self.fontePadrao, text_color="green")
-        self.mensagem.pack()
+        # Resultado
+        self.resultado = CTkLabel(self.container, text="Aguardando conversão...", font=self.resultFont, wraplength=380)
+        self.resultado.pack(pady=20)
 
     def decPARAbin(self):
         try:
             num = float(self.valor.get())
             pres = int(self.precisao.get())
+            if pres < 0:
+                raise ValueError("Precisão negativa")
 
-            parte_int = int(num)
-            parte_frac = num - parte_int
+            parte_int = int(abs(num))
+            parte_frac = abs(num) - parte_int
 
-            output = ""
-            if parte_int == 0:
-                output = "0"
-            else:
-                while parte_int != 0:
-                    output = str(parte_int % 2) + output
-                    parte_int //= 2
+            # Parte inteira
+            bin_int = "0" if parte_int == 0 else ""
+            while parte_int > 0:
+                bin_int = str(parte_int % 2) + bin_int
+                parte_int //= 2
 
-            if pres == 0 or parte_frac == 0:
-                self.mensagem.configure(text=output)
-                return
-
-            output += "."
-            while parte_frac != 0 and pres > 0:
+            # Parte fracionária
+            bin_frac = ""
+            while pres > 0 and parte_frac > 0:
                 parte_frac *= 2
                 bit = int(parte_frac)
-                output += str(bit)
+                bin_frac += str(bit)
                 parte_frac -= bit
                 pres -= 1
 
-            self.mensagem.configure(text=output)
+            # Montar resultado final
+            resultado = f"{'-' if num < 0 else ''}{bin_int}"
+            if bin_frac:
+                resultado += f".{bin_frac}"
 
-        except ValueError:
-            self.mensagem.configure(text="Entrada inválida. Use números reais e precisão inteira.", text_color="red")
+            self.resultado.configure(text=resultado, text_color="#2ecc71")
+
+        except Exception as e:
+            self.resultado.configure(text="⚠️ Entrada inválida. Use número real e precisão inteira ≥ 0.", text_color="#e74c3c")
 
 
 # Inicializar Janela
 root = CTk()
 root.title("Conversor Decimal → Binário")
-root.geometry("300x300")
+root.geometry("420x400")
 App(root)
 root.mainloop()
